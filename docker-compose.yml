@@ -1,0 +1,72 @@
+version: "3.8"
+
+services:
+  loki:
+    image: grafana/loki:3.5.4
+    expose:
+      - 3100
+    volumes:
+      - ./config/loki-config.yml:/etc/loki/loki-config.yml
+      - loki_data:/loki
+    restart: unless-stopped
+    networks:
+      - monitor-net
+
+  prometheus:
+    image: prom/prometheus:v2.55.0
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--web.enable-remote-write-receiver"
+    expose:
+      - 9090
+    volumes:
+      - ./config/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    restart: unless-stopped
+    networks:
+      - monitor-net
+
+  grafana:
+    image: grafana/grafana:12.1.1
+    expose:
+      - 3000
+    volumes:
+      # Data Sources
+      - ./config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=${GF_SECURITY_ADMIN_USER}
+      - GF_SECURITY_ADMIN_PASSWORD=${GF_SECURITY_ADMIN_PASSWORD}
+    restart: unless-stopped
+    networks:
+      - monitor-net
+
+  nginx:
+    image: nginx:1.27.2
+    ports:
+      - "${NGINX_PORT}:80"
+    env_file:
+      - .env
+    volumes:
+      - ./config/nginx.conf:/etc/nginx/conf.d/default.conf
+      - ./config/.htpasswd:/etc/nginx/.htpasswd
+    depends_on:
+      - grafana
+      - loki
+      - prometheus
+    restart: unless-stopped
+    networks:
+      - monitor-net
+
+volumes:
+  loki_data:
+    name: loki_data_${ENV}
+  prometheus_data:
+    name: prometheus_data_${ENV}
+  grafana_data:
+    name: grafana_data_${ENV}
+
+networks:
+  monitor-net:
+    name: ${DOCKER_NETWORK_NAME}
+    driver: bridge
