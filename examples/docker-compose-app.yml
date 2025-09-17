@@ -1,0 +1,40 @@
+version: "3.11"
+
+services:
+  # === Monitoring Agent - Grafana Alloy ===
+  monitor-agent:
+    image: grafana/alloy:latest
+    command: >
+      run --server.http.listen-addr=0.0.0.0:12345
+      --storage.path=/var/lib/alloy/data
+      /etc/alloy/config.alloy
+    depends_on:
+      - drprompt-be
+    env_file:
+      - ../.env
+    expose:
+      - 12345
+    volumes:
+      - ./config/conf-grafana.alloy:/etc/alloy/config.alloy
+      # Log folder
+      - log-folder:/app/logs
+      # Node Exporter metrics
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    restart: unless-stopped
+    networks:
+      - app-net
+
+# === Network ===
+networks:
+  app-net:
+    name: ${DOCKER_NETWORK_NAME}
+    driver: bridge
+
+# === Volumes ===
+volumes:
+  log-folder:
+    external: true
+    name: ${DOCKER_LOG_FOLDER_NAME}
