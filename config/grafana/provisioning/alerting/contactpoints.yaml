@@ -1,0 +1,19 @@
+apiVersion: 1
+contactPoints:
+  - orgId: 1
+    name: slack-contact
+    receivers:
+      - uid: slack
+        type: slack
+        disableResolveMessage: false
+        settings:
+          url: ${SLACK_WEBHOOK_URL}
+          username: "Grafana Monitor"
+          icon_emoji: '{{ if eq .Labels.severity "critical" }}:red_circle:{{ else if eq .Labels.severity "warning" }}:warning:{{ else }}:information_source:{{ end }}'
+          icon_url: "https://grafana.com/static/assets/img/fav32.png"
+          color: '{{ if eq .Status "firing" }}#D63232{{ else }}#36a64f{{ end }}'
+
+          # TODO: Add more details to the alert message
+          title: "Test Alert - Status: {{ .Status }}"
+          text: |
+            **Status:** {{ .Status }}

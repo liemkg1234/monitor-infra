@@ -1,0 +1,69 @@
+# TODO: Add more details to the alert message
+
+apiVersion: 1
+
+groups:
+  - name: infrastructure_alerts
+    orgId: 1
+    folder: Infrastructure
+    interval: 1m
+    rules:
+      # Swap Usage Warning
+      - uid: swap_usage_warning
+        title: "Swap Usage Warning"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                ((node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes)
+                / node_memory_SwapTotal_bytes) * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [10]   # >10% thì cảnh báo
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: NoData
+        execErrState: Alerting
+        for: 1m
+
+        annotations:
+          summary: "Swap usage warning"
+          description: "Swap usage on {{ $labels.instance }} is {{ printf \"%.2f\" $values.A.Value }}% (threshold: 10%)"
+          runbook_url: "https://your-docs/runbook/swap-usage"   # khuyến nghị thêm
+
+        labels:
+          severity: warning
+          team: infrastructure

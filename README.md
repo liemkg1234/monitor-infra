@@ -2,8 +2,9 @@
 Monitoring Infrastructure:
 - Grafana UI Dashboard
 - Node Exporter
-- App Logs (Loki)
-- App Metrics API (Prometheus)
+- Management Logs (Loki)
+- Management Metrics (Prometheus)
+- Management Alerts (Alertmanager)
 
 ![Grafana UI Dashboard](images/langfuse.png)
 

@@ -1,0 +1,48 @@
+logging {
+    level  = "info"
+    format = "logfmt"
+}
+
+// Node Exporter
+prometheus.exporter.unix "node_exporter" {
+    disable_collectors = ["mdadm", "zfs", "powersupplyclass"]
+
+    procfs_path = "/host/proc"
+    sysfs_path  = "/host/sys"
+    rootfs_path = "/rootfs"
+
+    include_exporter_metrics = true
+}
+
+prometheus.scrape "node_exporter_scrape" {
+    targets = prometheus.exporter.unix.node_exporter.targets
+
+    scrape_interval = "10s"
+    scrape_timeout  = "10s"
+    forward_to = [prometheus.relabel.add_static_label.receiver]
+}
+
+prometheus.relabel "add_static_label" {
+    forward_to = [prometheus.remote_write.prometheus.receiver]
+
+    rule {
+        target_label = "job"
+        replacement  = env("PROJECT_NAME") + "-" + env("ENV") + "-node-exporter"
+    }
+
+    rule {
+        target_label = "env"
+        replacement  = env("ENV")
+    }
+}
+
+// Prometheus
+prometheus.remote_write "prometheus" {
+    endpoint {
+        url = "http://prometheus:9090/api/v1/write"
+        basic_auth {
+            username = env("GF_SECURITY_ADMIN_USER")
+            password = env("GF_SECURITY_ADMIN_PASSWORD")
+        }
+    }
+}
