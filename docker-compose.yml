@@ -7,8 +7,7 @@ services:
     expose:
       - 3000
     volumes:
-      - ./config/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources
-      - ./config/grafana/provisioning/alerting:/etc/grafana/provisioning/alerting
+      - ./config/grafana/provisioning:/etc/grafana/provisioning
       - grafana_data:/var/lib/grafana
     env_file:
       - .env
