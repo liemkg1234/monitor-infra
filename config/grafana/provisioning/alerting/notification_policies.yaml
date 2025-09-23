@@ -4,7 +4,8 @@ policies:
     receiver: slack-contact
     group_by:
       - alertname
+      - severity
+      - instance
     group_wait: 30s
-    group_interval: 5m
-    repeat_interval: 4h
-    matchers: []
+    group_interval: 2m
+    repeat_interval: 1h

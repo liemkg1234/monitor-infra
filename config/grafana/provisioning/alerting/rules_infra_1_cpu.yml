@@ -1,0 +1,140 @@
+apiVersion: 1
+
+groups:
+  - name: infrastructure_alerts
+    orgId: 1
+    folder: Infrastructure
+    interval: 1m
+    rules:
+
+      # CPU Usage Warning
+      - uid: cpu_usage_warning
+        title: "CPU Usage Warning"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [70]  # >70% is warning
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+                - evaluator:
+                    params: [85]  # <85% is warning
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "CPU usage elevated ⚠️"
+          description: "CPU usage is between 70% and 85% (Current value is {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: warning
+          team: infrastructure
+
+
+      # CPU Usage Critical
+      - uid: cpu_usage_critical
+        title: "CPU Usage Critical"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100)
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [90]   # >=90% is critical
+                    type: gte
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "CPU usage too high 🚨"
+          description: "CPU usage is at or above 90% (Current value: {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: critical
+          team: infrastructure

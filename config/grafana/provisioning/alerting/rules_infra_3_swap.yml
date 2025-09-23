@@ -1,0 +1,273 @@
+apiVersion: 1
+
+groups:
+  - name: infrastructure_alerts
+    orgId: 1
+    folder: Infrastructure
+    interval: 1m
+    rules:
+
+      # Swap Usage Warning
+      - uid: swap_usage_warning
+        title: "Swap Usage Warning"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                ((node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / node_memory_SwapTotal_bytes) * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [50]  # >50% is warning
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+                - evaluator:
+                    params: [70]  # <70% is warning
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Swap usage elevated ⚠️"
+          description: "Swap usage is between 50% and 70% of total swap (Current value is {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: warning
+          team: infrastructure
+
+
+      # Swap Usage Critical
+      - uid: swap_usage_critical
+        title: "Swap Usage Critical"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                ((node_memory_SwapTotal_bytes - node_memory_SwapFree_bytes) / node_memory_SwapTotal_bytes) * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [80]   # >=80% is critical
+                    type: gte
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Swap usage too high 🚨"
+          description: "Swap usage is at or above 80% of total swap (Current value: {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: critical
+          team: infrastructure
+
+
+      # Swap Activity Warning
+      - uid: swap_activity_warning
+        title: "Swap Activity Warning"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                rate(node_vmstat_pswpin[5m]) + rate(node_vmstat_pswpout[5m])
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [100]  # >100 pages/s is warning
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+                - evaluator:
+                    params: [500]  # <500 pages/s is warning
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Swap activity elevated ⚠️"
+          description: "Swap activity is between 100 and 500 pages/s (Current value is {{ printf \"%.2f\" $values.B0.Value }} pages/s.)"
+
+        labels:
+          severity: warning
+          team: infrastructure
+
+
+      # Swap Activity Critical
+      - uid: swap_activity_critical
+        title: "Swap Activity Critical"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                rate(node_vmstat_pswpin[5m]) + rate(node_vmstat_pswpout[5m])
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [1000]   # >=1000 pages/s is critical
+                    type: gte
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Swap activity too high 🚨"
+          description: "Swap activity is at or above 1000 pages/s (Current value: {{ printf \"%.2f\" $values.B0.Value }} pages/s.)"
+
+        labels:
+          severity: critical
+          team: infrastructure

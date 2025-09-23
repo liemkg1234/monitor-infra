@@ -9,11 +9,14 @@ contactPoints:
         settings:
           url: ${SLACK_WEBHOOK_URL}
           username: "Grafana Monitor"
-          icon_emoji: '{{ if eq .Labels.severity "critical" }}:red_circle:{{ else if eq .Labels.severity "warning" }}:warning:{{ else }}:information_source:{{ end }}'
           icon_url: "https://grafana.com/static/assets/img/fav32.png"
-          color: '{{ if eq .Status "firing" }}#D63232{{ else }}#36a64f{{ end }}'
-
-          # TODO: Add more details to the alert message
-          title: "Test Alert - Status: {{ .Status }}"
+          color: '{{ if eq .Status "firing" }}{{ if eq .CommonLabels.severity "critical" }}#DC3545{{ else if eq .CommonLabels.severity "warning" }}#FFC107{{ else if eq .CommonLabels.severity "info" }}#6C757D{{ else }}#DC3545{{ end }}{{ else }}#28A745{{ end }}'
+          title: '{{ if eq .CommonLabels.severity "critical" }}🚨 {{ .CommonLabels.alertname }}{{ else if eq .CommonLabels.severity "warning" }}⚠️ {{ .CommonLabels.alertname }}{{ else if eq .CommonLabels.severity "info" }}ℹ️ {{ .CommonLabels.alertname }}{{ else }}🔔 {{ .CommonLabels.alertname }}{{ end }}'
           text: |
-            **Status:** {{ .Status }}
+            🏢 *Team:* {{ .CommonLabels.team }}
+            {{ range .Alerts }}
+            🏗️ *Job:* {{ .Annotations.job }}
+            🌍 *Environment:* {{ .Annotations.environment }}
+            📝 *Summary:* {{ .Annotations.summary }}
+            📄 *Description:* {{ .Annotations.description }}
+            {{ end }}

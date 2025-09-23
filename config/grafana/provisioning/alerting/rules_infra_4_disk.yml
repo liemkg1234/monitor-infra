@@ -1,0 +1,406 @@
+apiVersion: 1
+
+groups:
+  - name: infrastructure_alerts
+    orgId: 1
+    folder: Infrastructure
+    interval: 1m
+    rules:
+
+      # Disk Usage Warning
+      - uid: disk_usage_warning
+        title: "Disk Usage Warning"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                ((node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes) * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [70]  # >70% is warning
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+                - evaluator:
+                    params: [85]  # <85% is warning
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Disk usage elevated ⚠️"
+          description: "Disk usage is between 70% and 85% (Current value is {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: warning
+          team: infrastructure
+
+
+      # Disk Usage Critical
+      - uid: disk_usage_critical
+        title: "Disk Usage Critical"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                ((node_filesystem_size_bytes - node_filesystem_avail_bytes) / node_filesystem_size_bytes) * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [90]   # >=90% is critical
+                    type: gte
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Disk usage too high 🚨"
+          description: "Disk usage is at or above 90% (Current value: {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: critical
+          team: infrastructure
+
+
+      # Inode Usage Warning
+      - uid: inode_usage_warning
+        title: "Inode Usage Warning"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                ((node_filesystem_files - node_filesystem_files_free) / node_filesystem_files) * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [70]  # >70% is warning
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+                - evaluator:
+                    params: [85]  # <85% is warning
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Inode usage elevated ⚠️"
+          description: "Inode usage is between 70% and 85% (Current value is {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: warning
+          team: infrastructure
+
+
+      # Inode Usage Critical
+      - uid: inode_usage_critical
+        title: "Inode Usage Critical"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                ((node_filesystem_files - node_filesystem_files_free) / node_filesystem_files) * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [90]   # >=90% is critical
+                    type: gte
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Inode usage too high 🚨"
+          description: "Inode usage is at or above 90% (Current value: {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: critical
+          team: infrastructure
+
+
+      # Disk I/O Wait Warning
+      - uid: disk_iowait_warning
+        title: "Disk I/O Wait Warning"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                100 * avg(rate(node_cpu_seconds_total{mode="iowait"}[5m]))
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [15]  # >15% is warning
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+                - evaluator:
+                    params: [25]  # <25% is warning
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Disk I/O wait elevated ⚠️"
+          description: "Disk I/O wait is between 15% and 25% (Current value is {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: warning
+          team: infrastructure
+
+
+      # Disk I/O Wait Critical
+      - uid: disk_iowait_critical
+        title: "Disk I/O Wait Critical"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                100 * avg(rate(node_cpu_seconds_total{mode="iowait"}[5m]))
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [30]   # >=30% is critical
+                    type: gte
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Disk I/O wait too high 🚨"
+          description: "Disk I/O wait is at or above 30% (Current value: {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: critical
+          team: infrastructure

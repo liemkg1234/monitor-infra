@@ -1,0 +1,406 @@
+apiVersion: 1
+
+groups:
+  - name: infrastructure_alerts
+    orgId: 1
+    folder: Infrastructure
+    interval: 1m
+    rules:
+
+      # Network Errors Warning
+      - uid: network_errors_warning
+        title: "Network Errors Warning"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                rate(node_network_receive_errs_total[5m]) + rate(node_network_transmit_errs_total[5m])
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [1]  # >1 error/s is warning
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+                - evaluator:
+                    params: [5]  # <5 error/s is warning
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Network errors elevated ⚠️"
+          description: "Network errors are between 1 and 5 per second (Current value is {{ printf \"%.2f\" $values.B0.Value }} errors/s.)"
+
+        labels:
+          severity: warning
+          team: infrastructure
+
+
+      # Network Errors Critical
+      - uid: network_errors_critical
+        title: "Network Errors Critical"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                rate(node_network_receive_errs_total[5m]) + rate(node_network_transmit_errs_total[5m])
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [10]   # >=10 errors/s is critical
+                    type: gte
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Network errors too high 🚨"
+          description: "Network errors are at or above 10 per second (Current value: {{ printf \"%.2f\" $values.B0.Value }} errors/s.)"
+
+        labels:
+          severity: critical
+          team: infrastructure
+
+
+      # Network Packet Drops Warning
+      - uid: network_drops_warning
+        title: "Network Packet Drops Warning"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                rate(node_network_receive_drop_total[5m]) + rate(node_network_transmit_drop_total[5m])
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [0.5]  # >0.5% is warning
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+                - evaluator:
+                    params: [1]  # <1% is warning
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Network packet drops elevated ⚠️"
+          description: "Network packet drop rate is between 0.5% and 1% (Current value is {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: warning
+          team: infrastructure
+
+
+      # Network Packet Drops Critical
+      - uid: network_drops_critical
+        title: "Network Packet Drops Critical"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                rate(node_network_receive_drop_total[5m]) + rate(node_network_transmit_drop_total[5m])
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [2]   # >=2% is critical
+                    type: gte
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Network packet drops too high 🚨"
+          description: "Network packet drop rate is at or above 2% (Current value: {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: critical
+          team: infrastructure
+
+
+      # Network Bandwidth Warning
+      - uid: network_bandwidth_warning
+        title: "Network Bandwidth Warning"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                (rate(node_network_receive_bytes_total[5m]) / node_network_speed_bytes) * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [70]  # >70% is warning
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+                - evaluator:
+                    params: [85]  # <85% is warning
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Network bandwidth elevated ⚠️"
+          description: "Network bandwidth usage is between 70% and 85% of NIC speed (Current value is {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: warning
+          team: infrastructure
+
+
+      # Network Bandwidth Critical
+      - uid: network_bandwidth_critical
+        title: "Network Bandwidth Critical"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                (rate(node_network_receive_bytes_total[5m]) / node_network_speed_bytes) * 100
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [90]   # >=90% is critical
+                    type: gte
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Network bandwidth too high 🚨"
+          description: "Network bandwidth usage is at or above 90% of NIC speed (Current value: {{ printf \"%.2f\" $values.B0.Value }}%.)"
+
+        labels:
+          severity: critical
+          team: infrastructure

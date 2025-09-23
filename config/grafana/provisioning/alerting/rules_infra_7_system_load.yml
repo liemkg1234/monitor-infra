@@ -1,0 +1,137 @@
+apiVersion: 1
+
+groups:
+  - name: infrastructure_alerts
+    orgId: 1
+    folder: Infrastructure
+    interval: 1m
+    rules:
+
+      # System Load Warning
+      - uid: system_load_warning
+        title: "System Load Warning"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                node_load5 / count(node_cpu_seconds_total) by (instance)
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [0.7]   # >70% core
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+                - evaluator:
+                    params: [1.0]   # <100% core
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 5m
+
+        annotations:
+          summary: "System load elevated ⚠️"
+          description: "Load average (5m) between 70% and 100% of CPU cores on {{ $labels.instance }}. Current value: {{ printf \"%.2f\" $values.B0.Value }}."
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+
+        labels:
+          severity: warning
+          team: infrastructure
+
+
+      # System Load Critical
+      - uid: system_load_critical
+        title: "System Load Critical"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300   # 5 phút
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                node_load5 / count(node_cpu_seconds_total) by (instance)
+              intervalMs: 1000
+              maxDataPoints: 43200
+
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [1.2]   # ≥120% core
+                    type: gte
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 3m
+
+        annotations:
+          summary: "System load too high 🚨"
+          description: "Load average (5m) ≥120% of CPU cores on {{ $labels.instance }}. Current value: {{ printf \"%.2f\" $values.B0.Value }}."
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+
+        labels:
+          severity: critical
+          team: infrastructure
