@@ -15,7 +15,7 @@ groups:
           - refId: A
             queryType: ""
             relativeTimeRange:
-              from: 3
+              from: 300
               to: 0
             datasourceUid: prometheus
             model:
@@ -37,7 +37,7 @@ groups:
                 uid: __expr__
               conditions:
                 - evaluator:
-                    params: [1, 70]  # Between 50% and 70%
+                    params: [50, 70]  # Between 50% and 70%
                     type: within_range
                   operator:
                     type: and
@@ -54,7 +54,7 @@ groups:
 
         noDataState: OK
         execErrState: Alerting
-        for: 1m
+        for: 5m
 
         annotations:
           job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
