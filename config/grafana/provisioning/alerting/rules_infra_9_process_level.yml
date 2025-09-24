@@ -36,20 +36,8 @@ groups:
                 uid: __expr__
               conditions:
                 - evaluator:
-                    params: [70]  # >70% is warning
-                    type: gt
-                  operator:
-                    type: and
-                  query:
-                    type: query_result
-                    params: [A]
-                  reducer:
-                    type: last
-                    params: []
-                  type: query
-                - evaluator:
-                    params: [85]  # <85% is warning
-                    type: lt
+                    params: [70, 90]  # Between 70% and 90% of file descriptors
+                    type: within_range
                   operator:
                     type: and
                   query:

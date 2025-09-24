@@ -37,20 +37,8 @@ groups:
                 uid: __expr__
               conditions:
                 - evaluator:
-                    params: [20]  # >20 ms is warning
-                    type: gt
-                  operator:
-                    type: and
-                  query:
-                    type: query_result
-                    params: [A]
-                  reducer:
-                    type: last
-                    params: []
-                  type: query
-                - evaluator:
-                    params: [40]  # <40 ms is warning
-                    type: lt
+                    params: [20, 50]  # Between 20ms and 50ms
+                    type: within_range
                   operator:
                     type: and
                   query:
@@ -72,7 +60,7 @@ groups:
           job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
           environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
           summary: "Filesystem latency elevated ⚠️"
-          description: "Filesystem I/O latency is between 20 ms and 40 ms (Current value is {{ printf \"%.2f\" $values.B0.Value }} ms.)"
+          description: "Filesystem I/O latency is between 20 ms and 50 ms (Current value is {{ printf \"%.2f\" $values.B0.Value }} ms.)"
 
         labels:
           severity: warning

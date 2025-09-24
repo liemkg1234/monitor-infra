@@ -20,7 +20,7 @@ groups:
             datasourceUid: prometheus
             model:
               expr: |
-                node_load5 / count(node_cpu_seconds_total) by (instance)
+                node_load1 / count(node_cpu_seconds_total) by (instance)
               intervalMs: 1000
               maxDataPoints: 43200
 
@@ -38,20 +38,8 @@ groups:
                 uid: __expr__
               conditions:
                 - evaluator:
-                    params: [0.7]   # >70% core
-                    type: gt
-                  operator:
-                    type: and
-                  query:
-                    type: query_result
-                    params: [A]
-                  reducer:
-                    type: last
-                    params: []
-                  type: query
-                - evaluator:
-                    params: [1.0]   # <100% core
-                    type: lt
+                    params: [0.7, 1.2]  # Between 70% and 120% of CPU cores
+                    type: within_range
                   operator:
                     type: and
                   query:
@@ -69,7 +57,7 @@ groups:
 
         annotations:
           summary: "System load elevated ⚠️"
-          description: "Load average (5m) between 70% and 100% of CPU cores on {{ $labels.instance }}. Current value: {{ printf \"%.2f\" $values.B0.Value }}."
+          description: "Load average (5m) between 70% and 120% of CPU cores on {{ $labels.instance }}. Current value: {{ printf \"%.2f\" $values.B0.Value }}."
           job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
           environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
 
@@ -86,12 +74,12 @@ groups:
           - refId: A
             queryType: ""
             relativeTimeRange:
-              from: 300   # 5 phút
+              from: 300
               to: 0
             datasourceUid: prometheus
             model:
               expr: |
-                node_load5 / count(node_cpu_seconds_total) by (instance)
+                node_load1 / count(node_cpu_seconds_total) by (instance)
               intervalMs: 1000
               maxDataPoints: 43200
 
