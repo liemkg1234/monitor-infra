@@ -9,7 +9,7 @@ groups:
 
       # Network Errors Warning
       - uid: network_errors_warning
-        title: "Network Errors Warning"
+        title: "⚠️ Network Errors Warning"
         condition: B
         data:
           - refId: A
@@ -69,7 +69,7 @@ groups:
 
       # Network Errors Critical
       - uid: network_errors_critical
-        title: "Network Errors Critical"
+        title: "🚨 Network Errors Critical"
         condition: B
         data:
           - refId: A
@@ -130,7 +130,7 @@ groups:
 
       # Network Packet Drops Warning
       - uid: network_drops_warning
-        title: "Network Packet Drops Warning"
+        title: "⚠️ Network Packet Drops Warning"
         condition: B
         data:
           - refId: A
@@ -190,7 +190,7 @@ groups:
 
       # Network Packet Drops Critical
       - uid: network_drops_critical
-        title: "Network Packet Drops Critical"
+        title: "🚨 Network Packet Drops Critical"
         condition: B
         data:
           - refId: A
@@ -251,7 +251,7 @@ groups:
 
       # Network Bandwidth Warning
       - uid: network_bandwidth_warning
-        title: "Network Bandwidth Warning"
+        title: "⚠️ Network Bandwidth Warning"
         condition: B
         data:
           - refId: A
@@ -311,7 +311,7 @@ groups:
 
       # Network Bandwidth Critical
       - uid: network_bandwidth_critical
-        title: "Network Bandwidth Critical"
+        title: "🚨 Network Bandwidth Critical"
         condition: B
         data:
           - refId: A

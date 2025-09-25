@@ -9,7 +9,7 @@ groups:
 
       # Memory Usage Warning
       - uid: memory_usage_warning
-        title: "Memory Usage Warning"
+        title: "⚠️ Memory Usage Warning"
         condition: B
         data:
           - refId: A
@@ -69,7 +69,7 @@ groups:
 
       # Memory Usage Critical
       - uid: memory_usage_critical
-        title: "Memory Usage Critical"
+        title: "🚨 Memory Usage Critical"
         condition: B
         data:
           - refId: A

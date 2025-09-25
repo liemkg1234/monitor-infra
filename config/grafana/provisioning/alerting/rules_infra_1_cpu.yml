@@ -9,7 +9,7 @@ groups:
 
       # CPU Usage Warning
       - uid: cpu_usage_warning
-        title: "CPU Usage Warning"
+        title: "⚠️ CPU Usage Warning"
         condition: B
         data:
           - refId: A
@@ -69,7 +69,7 @@ groups:
 
       # CPU Usage Critical
       - uid: cpu_usage_critical
-        title: "CPU Usage Critical"
+        title: "🚨 CPU Usage Critical"
         condition: B
         data:
           - refId: A

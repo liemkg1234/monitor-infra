@@ -11,7 +11,7 @@ contactPoints:
           username: "Grafana Monitor"
           icon_url: "https://grafana.com/static/assets/img/fav32.png"
           color: '{{ if eq .Status "firing" }}{{ if eq .CommonLabels.severity "critical" }}#DC3545{{ else if eq .CommonLabels.severity "warning" }}#FFC107{{ else if eq .CommonLabels.severity "info" }}#6C757D{{ else }}#DC3545{{ end }}{{ else }}#28A745{{ end }}'
-          title: '{{ if eq .CommonLabels.severity "critical" }}🚨 {{ .CommonLabels.alertname }}{{ else if eq .CommonLabels.severity "warning" }}⚠️ {{ .CommonLabels.alertname }}{{ else if eq .CommonLabels.severity "info" }}ℹ️ {{ .CommonLabels.alertname }}{{ else }}🔔 {{ .CommonLabels.alertname }}{{ end }}'
+          title: '{{ .CommonLabels.alertname }}'
           text: |
             🏢 *Team:* {{ .CommonLabels.team }}
             {{ range .Alerts }}

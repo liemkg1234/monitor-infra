@@ -8,7 +8,7 @@ groups:
     rules:
       # File Descriptors Warning
       - uid: file_descriptors_warning
-        title: "File Descriptors Warning"
+        title: "⚠️ File Descriptors Warning"
         condition: B
         data:
           - refId: A
@@ -68,7 +68,7 @@ groups:
 
       # File Descriptors Critical
       - uid: file_descriptors_critical
-        title: "File Descriptors Critical"
+        title: "🚨 File Descriptors Critical"
         condition: B
         data:
           - refId: A

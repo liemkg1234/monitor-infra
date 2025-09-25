@@ -9,7 +9,7 @@ groups:
 
       # Filesystem Latency Warning
       - uid: filesystem_latency_warning
-        title: "Filesystem Latency Warning"
+        title: "⚠️ Filesystem Latency Warning"
         condition: B
         data:
           - refId: A
@@ -69,7 +69,7 @@ groups:
 
       # Filesystem Latency Critical
       - uid: filesystem_latency_critical
-        title: "Filesystem Latency Critical"
+        title: "🚨 Filesystem Latency Critical"
         condition: B
         data:
           - refId: A

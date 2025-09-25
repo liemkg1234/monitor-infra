@@ -118,7 +118,7 @@ groups:
           severity: critical
           team: development
 
-      # Application Error
+      # Application Error Warning
       - uid: application_error
         title: "⚠️ Application Error Warning"
         condition: B
@@ -131,9 +131,10 @@ groups:
             datasourceUid: loki
             model:
               expr: |
-                100 * rate({job=~".*-logs", level="ERROR"}[5m]) / rate({job=~".*-logs"}[5m])
+                count_over_time({job=~".*-logs", level="ERROR"}[30s])
               intervalMs: 1000
               maxDataPoints: 43200
+
           - refId: B
             queryType: ""
             relativeTimeRange:
@@ -148,7 +149,7 @@ groups:
                 uid: __expr__
               conditions:
                 - evaluator:
-                    params: [5]
+                    params: [0]
                     type: gt
                   operator:
                     type: and
@@ -165,73 +166,14 @@ groups:
 
         noDataState: OK
         execErrState: Alerting
-        for: 5m
+        for: 30s
 
         annotations:
           job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
           environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
           summary: "Application Error Warning ⚠️"
-          description: "Application has 5% errors in logs"
+          description: "Application has ERROR logs in the last 30s"
 
         labels:
           severity: warning
-          team: development
-
-      # Application Error - Critical
-      - uid: application_error_critical
-        title: "🚨 Application Error Critical"
-        condition: B
-        data:
-          - refId: A
-            queryType: ""
-            relativeTimeRange:
-              from: 300
-              to: 0
-            datasourceUid: loki
-            model:
-              expr: |
-                100 * rate({job=~".*-logs", level="ERROR"}[5m]) / rate({job=~".*-logs"}[5m])
-              intervalMs: 1000
-              maxDataPoints: 43200
-          - refId: B
-            queryType: ""
-            relativeTimeRange:
-              from: 0
-              to: 0
-            datasourceUid: __expr__
-            model:
-              expression: A
-              reducer: last
-              datasource:
-                type: __expr__
-                uid: __expr__
-              conditions:
-                - evaluator:
-                    params: [10]
-                    type: gt
-                  operator:
-                    type: and
-                  query:
-                    type: query_result
-                    params: [A]
-                  reducer:
-                    type: last
-                    params: []
-                  type: query
-              intervalMs: 1000
-              maxDataPoints: 43200
-              type: classic_conditions
-
-        noDataState: OK
-        execErrState: Alerting
-        for: 5m
-
-        annotations:
-          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
-          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
-          summary: "Application Error Critical 🚨"
-          description: "Application has more than 10% errors in logs"
-
-        labels:
-          severity: critical
           team: development

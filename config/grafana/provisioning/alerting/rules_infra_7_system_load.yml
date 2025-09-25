@@ -9,7 +9,7 @@ groups:
 
       # System Load Warning
       - uid: system_load_warning
-        title: "System Load Warning"
+        title: "⚠️ System Load Warning"
         condition: B
         data:
           - refId: A
@@ -68,7 +68,7 @@ groups:
 
       # System Load Critical
       - uid: system_load_critical
-        title: "System Load Critical"
+        title: "🚨 System Load Critical"
         condition: B
         data:
           - refId: A

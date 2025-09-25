@@ -9,7 +9,7 @@ groups:
 
       # Swap Usage Warning
       - uid: swap_usage_warning
-        title: "Swap Usage Warning"
+        title: "⚠️ Swap Usage Warning"
         condition: B
         data:
           - refId: A
@@ -69,7 +69,7 @@ groups:
 
       # Swap Usage Critical
       - uid: swap_usage_critical
-        title: "Swap Usage Critical"
+        title: "🚨 Swap Usage Critical"
         condition: B
         data:
           - refId: A
@@ -130,7 +130,7 @@ groups:
 
       # Swap Activity Warning
       - uid: swap_activity_warning
-        title: "Swap Activity Warning"
+        title: "⚠️ Swap Activity Warning"
         condition: B
         data:
           - refId: A
@@ -190,7 +190,7 @@ groups:
 
       # Swap Activity Critical
       - uid: swap_activity_critical
-        title: "Swap Activity Critical"
+        title: "🚨 Swap Activity Critical"
         condition: B
         data:
           - refId: A

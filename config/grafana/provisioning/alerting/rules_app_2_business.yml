@@ -9,7 +9,7 @@ groups:
       ## Queue System
       # Pending Tasks Warning
       - uid: queue_pending_tasks_warning
-        title: "Queue Pending Tasks Alert"
+        title: "⚠️ Queue Pending Tasks Warning"
         condition: B
         data:
           - refId: A
@@ -68,7 +68,7 @@ groups:
 
       # Pending Tasks Critical
       - uid: queue_pending_tasks_critical
-        title: "Queue Pending Tasks Critical Alert"
+        title: "🚨 Queue Pending Tasks Critical"
         condition: B
         data:
           - refId: A

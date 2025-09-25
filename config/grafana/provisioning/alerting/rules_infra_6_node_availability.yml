@@ -9,7 +9,7 @@ groups:
 
       # Node Availability Warning
       - uid: node_availability_warning
-        title: "Node Availability Warning"
+        title: "⚠️ Node Availability Warning"
         condition: B
         data:
           - refId: A
@@ -69,7 +69,7 @@ groups:
 
       # Node Availability Critical
       - uid: node_availability_critical
-        title: "Node Availability Critical"
+        title: "🚨 Node Availability Critical"
         condition: B
         data:
           - refId: A
