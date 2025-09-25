@@ -1,0 +1,129 @@
+apiVersion: 1
+
+groups:
+  - name: application.business
+    orgId: 1
+    folder: Application
+    interval: 30s
+    rules:
+      ## Queue System
+      # Pending Tasks Warning
+      - uid: queue_pending_tasks_warning
+        title: "Queue Pending Tasks Alert"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                queue_task_count{status=~"NEW|PENDING"}
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [10, 100]  # Between 10 and 100 (for >=10 <=100 assuming integers)
+                    type: within_range
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 15m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Queue Pending Tasks Alert ⚠️"
+          description: "Queue has more than 10 and less than or equal to 100 pending tasks (Current value is {{ printf \"%.2f\" $values.B0.Value }}.)"
+
+        labels:
+          severity: warning
+          team: development
+
+      # Pending Tasks Critical
+      - uid: queue_pending_tasks_critical
+        title: "Queue Pending Tasks Critical Alert"
+        condition: B
+        data:
+          - refId: A
+            queryType: ""
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: |
+                queue_task_count{status=~"NEW|PENDING"}
+              intervalMs: 1000
+              maxDataPoints: 43200
+          - refId: B
+            queryType: ""
+            relativeTimeRange:
+              from: 0
+              to: 0
+            datasourceUid: __expr__
+            model:
+              expression: A
+              reducer: last
+              datasource:
+                type: __expr__
+                uid: __expr__
+              conditions:
+                - evaluator:
+                    params: [101]   # >100 assuming integers
+                    type: gte
+                  operator:
+                    type: and
+                  query:
+                    type: query_result
+                    params: [A]
+                  reducer:
+                    type: last
+                    params: []
+                  type: query
+              intervalMs: 1000
+              maxDataPoints: 43200
+              type: classic_conditions
+
+        noDataState: OK
+        execErrState: Alerting
+        for: 30m
+
+        annotations:
+          job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
+          environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
+          summary: "Queue Pending Tasks Critical Alert 🚨"
+          description: "Queue has more than 100 pending tasks (Current value: {{ printf \"%.2f\" $values.B0.Value }}.)"
+
+        labels:
+          severity: critical
+          team: development
+
+      # Failure/Kill Task Warning
+      # Failure/Kill Task Critical
