@@ -158,7 +158,7 @@ groups:
                 uid: __expr__
               conditions:
                 - evaluator:
-                    params: [50, 100]  # Between 50 and 100 pages/s is warning
+                    params: [500, 1000]  # Between 500 and 1000 pages/s is warning
                     type: within_range
                   operator:
                     type: and
@@ -181,7 +181,7 @@ groups:
           job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
           environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
           summary: "Swap activity elevated ⚠️"
-          description: "Swap activity is between 100 and 500 pages/s (Current value is {{ printf \"%.2f\" $values.B0.Value }} pages/s.)"
+          description: "Swap activity is between 500 and 1000 pages/s (Current value is {{ printf \"%.2f\" $values.B0.Value }} pages/s.)"
 
         labels:
           severity: warning
@@ -219,7 +219,7 @@ groups:
                 uid: __expr__
               conditions:
                 - evaluator:
-                    params: [100]   # >=100 pages/s is critical
+                    params: [1000]   # >=1000 pages/s is critical
                     type: gte
                   operator:
                     type: and

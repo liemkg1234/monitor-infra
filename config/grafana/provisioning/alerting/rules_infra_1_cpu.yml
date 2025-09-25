@@ -37,7 +37,7 @@ groups:
                 uid: __expr__
               conditions:
                 - evaluator:
-                    params: [75, 90]  # Between 75% and 90%
+                    params: [75, 89]  # Between 75% and 90%
                     type: within_range
                   operator:
                     type: and
