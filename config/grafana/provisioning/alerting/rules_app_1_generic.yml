@@ -131,7 +131,7 @@ groups:
             datasourceUid: loki
             model:
               expr: |
-                count_over_time({job=~".*-logs", level="ERROR"}[30s])
+                count_over_time({job=~".*-logs", level="ERROR"}[1m])
               intervalMs: 1000
               maxDataPoints: 43200
 
@@ -166,7 +166,7 @@ groups:
 
         noDataState: OK
         execErrState: Alerting
-        for: 30s
+        for: 0m
 
         annotations:
           job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
