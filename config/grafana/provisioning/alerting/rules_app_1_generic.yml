@@ -131,7 +131,7 @@ groups:
             datasourceUid: loki
             model:
               expr: |
-                count_over_time({job=~".*-logs", level="ERROR"}[1m])
+                sum(count_over_time({job=~".*-logs", level="ERROR"}[1m]))
               intervalMs: 1000
               maxDataPoints: 43200
 
@@ -166,13 +166,13 @@ groups:
 
         noDataState: OK
         execErrState: Alerting
-        for: 0m
+        for: 2m
 
         annotations:
           job: "{{ range $values }}{{ .Labels.job }}{{ end }}"
           environment: "{{ range $values }}{{ .Labels.env }}{{ end }}"
           summary: "Application Error Warning ⚠️"
-          description: "Application has ERROR logs in the last 30s"
+          description: "Application has ERROR logs in the last 1 minute"
 
         labels:
           severity: warning
