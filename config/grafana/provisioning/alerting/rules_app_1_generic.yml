@@ -19,7 +19,7 @@ groups:
             datasourceUid: prometheus
             model:
               expr: |
-                (up{job=~".*-metrics"} offset 5m) unless (up{job=~".*-metrics"})
+                (up{job=~".*-metrics"} == 0) and (up{job=~".*-metrics"} offset 5m == 0)
               intervalMs: 1000
               maxDataPoints: 43200
           - refId: B
@@ -75,7 +75,7 @@ groups:
             datasourceUid: prometheus
             model:
               expr: |
-                healthcheck{job=~".*-metrics"} * (healthcheck{job=~".*-metrics"} offset 5m)
+                (healthcheck{job=~".*-metrics"} == 0) and (healthcheck{job=~".*-metrics"} offset 5m == 0)
               intervalMs: 1000
               maxDataPoints: 43200
           - refId: B
